@@ -15,6 +15,24 @@ func intPost(infix string) string {
     specials := map[rune]int{'*':10 ,'.':9 , '|':8}
 	//poFix := ""
 	poFix,s := []rune{}.[]rune{}
+
+    //creating algorithm
+    //https://gobyexample.com/range - range , coverts sting to array of runes
+    //_ is the index of the current character being read in, r represents the character
+    for _,r := range infix{
+        switch{
+            case r =='(':
+
+            case r == ')':
+
+            //the current character is in the specials map
+            case specials[r] > 0 :
+            
+            default:
+                //append adds the charater to the end of the poFix array
+                poFix = append(poFix,r)
+        }
+    }
 	
 
 	return string(poFix)
