@@ -1,3 +1,6 @@
+//Sarah Carroll- g00330821
+//https://golang.org/pkg/regexp/
+
 package main
 
 import (
