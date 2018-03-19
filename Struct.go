@@ -1,5 +1,6 @@
 //Sarah Carroll- g00330821
 //https://golang.org/pkg/regexp/
+//https://swtch.com/~rsc/regexp/regexp1.html
 
 package main
 
@@ -163,6 +164,50 @@ func poregtonfa(pofix string) *nfaFrag {
 	//return the last/ only thing left on the stack which is the actually nfa you want.
 	//***check that there is only one thing left on stack****
 	return nfaStack[0]
+}
+
+//the function pomatch takes in 2 strings as its argument, the postfix regular expression and a string for it to be compared with.
+//returning back a boolean-true/false
+func pomatch(po string, s string) bool {
+	//by default match is false/value you will return
+	match := false
+
+	//Create a dfa from the postfix regular expression
+	poNfa := poregtonfa(po)
+
+	//when running an input string on a nfa-on nfa u can be in any number of states at a given time
+	//create an array of pointers to state to keep track
+	current := []*state{}
+	//keeps track of possible moves from your current state
+	next := []*state{}
+
+	//add to the next array the c state and ay state from the c state along e arrows
+
+	//loop through string s a character at a time - current character is called r for rune
+	for _, r := range s {
+		//every time you read a character from s ,loop through currrent array
+		for _, c := range current {
+			//check if they are labled by the character labled s
+			if c.symbol == r {
+				//add that stat and all that you can go from there to next
+			}
+		} //end of for loop(current)
+		//every time you read a charater add all the possible next moves to next array
+		//set current to next and empty the next array
+		//when figured out the next set of states, make then the current set
+		current, next = next, []*state{}
+	} //end of for(s)
+
+	//loop though the current array
+	for _, c := range current {
+		//if state looping though on current array = accept state of nfa => match=true
+		if c == poNfa.accept {
+			match = true
+			break
+		}
+	} //end of for loop(current)
+
+	return match
 }
 
 func main() {
