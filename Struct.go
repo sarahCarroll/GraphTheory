@@ -76,7 +76,7 @@ type state struct {
 // build a list of state structs all collected together doing same thing as inputted collection
 // In thompsons law you always have a single innitial state  and a single accept states
 
-type nfaFrag struct {
+type nfa struct {
 	// keeps track of the initial state and accept state of the fragement of the nondeterministic finite attomitons
 	// There will always be one initial state but possibly numberous accept states.
 	// speeds up search for initial and accept states (helper struct)
@@ -86,10 +86,10 @@ type nfaFrag struct {
 
 //poregtonfa =post fix regular expression to non deterministic finite attomiton
 // must return a pointer to nfa struct
-func poregtonfa(pofix string) *nfaFrag {
+func poregtonfa(pofix string) *nfa {
 	// thompsons algorithm works oon a stack ultimatily having a single fragment
 	// on the stack which finnished which represents and nfa matching the regular expression
-	nfaStack := []*nfaFrag{}
+	nfaStack := []*nfa{}
 
 	//search though the post fix regular expression one character at a time
 	for _, r := range pofix {
@@ -112,8 +112,8 @@ func poregtonfa(pofix string) *nfaFrag {
 			frag1.accept.edge1 = frag2.initial
 
 			//set append to nfaStack a new pointer to an nfa struct that shows the new bigger nfa fragment
-			//& needed because nfaFrag is a struct - giving the address of the instance
-			nfaStack = append(nfaStack, &nfaFrag{initial: frag1.initial, accept: frag2.accept})
+			//& needed because nfa is a struct - giving the address of the instance
+			nfaStack = append(nfaStack, &nfa{initial: frag1.initial, accept: frag2.accept})
 
 		//when r is or
 		case '|':
@@ -123,15 +123,16 @@ func poregtonfa(pofix string) *nfaFrag {
 			frag1 := nfaStack[len(nfaStack)-1]
 			nfaStack = nfaStack[:len(nfaStack)-1]
 
-			//create 2 new states-accept adn initial and join those two states to the fragements that you pop off the stack
-			accept := state{}
 			//initial is a new state where edge1 points at frag1. initial and edge2 points at frag2.initial
 			initial := state{edge1: frag1.initial, edge2: frag2.initial}
+			//create 2 new states-accept adn initial and join those two states to the fragements that you pop off the stack
+			accept := state{}
+
 			//need to go in and get frag1.accepts edge which points at the accept state
 			frag1.accept.edge1 = &accept
-			frag2.accept.edge2 = &accept
+			frag2.accept.edge1 = &accept
 
-			nfaStack = append(nfaStack, &nfaFrag{initial: &initial, accept: &accept})
+			nfaStack = append(nfaStack, &nfa{initial: &initial, accept: &accept})
 
 		//when r is the claney star
 		case '*':
@@ -147,7 +148,7 @@ func poregtonfa(pofix string) *nfaFrag {
 			//old fragment with 2 extra states a new accept state and a new initial state
 			//the new initial state points at the initial state of the fragment you popped off and the new accept state
 			//the old accept state points at its own initial state and the new accept state
-			nfaStack = append(nfaStack, &nfaFrag{initial: &initial, accept: &accept})
+			nfaStack = append(nfaStack, &nfa{initial: &initial, accept: &accept})
 
 		//default for when r isnt one of the 3 special characters
 		default:
@@ -156,7 +157,7 @@ func poregtonfa(pofix string) *nfaFrag {
 			accept := state{}
 			initial := state{symbol: r, edge1: &accept}
 
-			nfaStack = append(nfaStack, &nfaFrag{initial: &initial, accept: &accept})
+			nfaStack = append(nfaStack, &nfa{initial: &initial, accept: &accept})
 
 		} //end switch
 	} //end forloop
@@ -168,18 +169,27 @@ func poregtonfa(pofix string) *nfaFrag {
 
 //the function pomatch takes in 2 strings as its argument, the postfix regular expression and a string for it to be compared with.
 //returning back a boolean-true/false
-func pomatch(po string, s string) bool {
+/*func pomatch(po string, s string) bool {
 	//by default match is false/value you will return
 	match := false
 
 	//Create a dfa from the postfix regular expression
-	poNfa := poregtonfa(po)
+	ponfa := poregtonfa(po)
 
 	//when running an input string on a nfa-on nfa u can be in any number of states at a given time
 	//create an array of pointers to state to keep track
+	//dont want current to just have initial state but that and everything that can be got to
+	//from the initial state -traverse the linked list that is poNfa
 	current := []*state{}
 	//keeps track of possible moves from your current state
 	next := []*state{}
+
+	//new function add state-helper function(recursive function in a non recursive form)
+	//benifit - can be reeused to be called on next array
+	//wat list of current states when we start off
+	//in go if you want to pass an array and change it, you can convert into slice as shown below ([:])
+	current = addState(current[:], ponfa.initial, ponfa.accept)
+	fmt.Println("current", current)
 
 	//add to the next array the c state and ay state from the c state along e arrows
 
@@ -189,7 +199,8 @@ func pomatch(po string, s string) bool {
 		for _, c := range current {
 			//check if they are labled by the character labled s
 			if c.symbol == r {
-				//add that stat and all that you can go from there to next
+				//add that state and all that you can go from there to next
+				next = addState(next[:], c.edge1, ponfa.accept)
 			}
 		} //end of for loop(current)
 		//every time you read a charater add all the possible next moves to next array
@@ -201,13 +212,57 @@ func pomatch(po string, s string) bool {
 	//loop though the current array
 	for _, c := range current {
 		//if state looping though on current array = accept state of nfa => match=true
-		if c == poNfa.accept {
+		if c == ponfa.accept {
 			match = true
 			break
 		}
 	} //end of for loop(current)
 
 	return match
+}*/
+
+func pomatch(po string, s string) bool {
+
+	ismatch := false
+
+	ponfa := poregtonfa(po)
+
+	current := []*state{}
+	next := []*state{}
+
+	current = addState(current[:], ponfa.initial, ponfa.accept)
+
+	for _, r := range s {
+		for _, c := range current {
+			if c.symbol == r {
+				next = addState(next[:], c.edge1, ponfa.accept)
+			}
+		}
+		current, next = next, []*state{}
+	}
+
+	for _, c := range current {
+		if c == ponfa.accept {
+			ismatch = true
+			break
+		}
+	}
+
+	return ismatch
+}
+
+//gets current array add state s and goes to s checking if its one the states with e arrows coming from it
+func addState(l []*state, s *state, a *state) []*state {
+
+	l = append(l, s)
+
+	if s != a && s.symbol == 0 {
+		l = addState(l, s.edge1, a)
+		if s.edge2 != nil {
+			l = addState(l, s.edge2, a)
+		}
+	}
+	return l
 }
 
 func main() {
@@ -224,9 +279,11 @@ func main() {
 	fmt.Println("Infix:      ", "a.(b.b)+.c")
 	fmt.Println("postFix:    ", intPost("a.(b.b)+.c"))
 
-	nfaFrag := poregtonfa("ab.c*|")
+	nfa := poregtonfa("ab.c*|")
 	// print out what is returned the nfa struct
 	fmt.Println("postFix:      ", "a.(b.b)+.c")
-	fmt.Println("nfa:         ", nfaFrag)
+	fmt.Println("nfa:         ", nfa)
+
+	fmt.Println(pomatch("ab.c*|", "ccc"))
 
 }
