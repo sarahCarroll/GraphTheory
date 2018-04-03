@@ -10,10 +10,11 @@ import (
 
 // the intPost function converts infix regular expressions to postfix regular expressions
 // it breaks them down to the simplist form for the computer to understand
-//using an algorithm called shunting yard-needing to use stacks in go
+//using an algorithm called shunting yard- needing to use stacks in go
 //https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+//http://jacobappleton.io/2015/07/02/regex-ii-the-shunting-yard-algorithm/
 func intPost(infix string) string {
-	//map to keep track of special characters
+	//map to keep track +of special characters
 	//if character is in specials do soemthing with it
 	//map to keep track of presedence
 	specials := map[rune]int{'*': 10, '.': 9, '|': 8}
@@ -74,17 +75,17 @@ type state struct {
 }
 
 // build a list of state structs all collected together doing same thing as inputted collection
-// In thompsons law you always have a single innitial state  and a single accept states
+// In thompsons law you always have a single initial state and a single accept states
 
 type nfa struct {
-	// keeps track of the initial state and accept state of the fragement of the nondeterministic finite attomitons
+	// keeps track of the initial state and accept state of the fragement of the non-deterministic finite attomitons
 	// There will always be one initial state but possibly numberous accept states.
 	// speeds up search for initial and accept states (helper struct)
 	initial *state
 	accept  *state
 }
 
-//poregtonfa =post fix regular expression to non deterministic finite attomiton
+// poregtonfa =post fix regular expression to non deterministic finite attomiton
 // must return a pointer to nfa struct
 func poregtonfa(pofix string) *nfa {
 	// thompsons algorithm works oon a stack ultimatily having a single fragment
@@ -169,9 +170,10 @@ func poregtonfa(pofix string) *nfa {
 
 //the function pomatch takes in 2 strings as its argument, the postfix regular expression and a string for it to be compared with.
 //returning back a boolean-true/false
-/*func pomatch(po string, s string) bool {
+func pomatch(po string, s string) bool {
+
 	//by default match is false/value you will return
-	match := false
+	ismatch := false
 
 	//Create a dfa from the postfix regular expression
 	ponfa := poregtonfa(po)
@@ -189,65 +191,31 @@ func poregtonfa(pofix string) *nfa {
 	//wat list of current states when we start off
 	//in go if you want to pass an array and change it, you can convert into slice as shown below ([:])
 	current = addState(current[:], ponfa.initial, ponfa.accept)
-	fmt.Println("current", current)
 
 	//add to the next array the c state and ay state from the c state along e arrows
-
 	//loop through string s a character at a time - current character is called r for rune
 	for _, r := range s {
-		//every time you read a character from s ,loop through currrent array
 		for _, c := range current {
-			//check if they are labled by the character labled s
 			if c.symbol == r {
-				//add that state and all that you can go from there to next
 				next = addState(next[:], c.edge1, ponfa.accept)
 			}
-		} //end of for loop(current)
+		}
+		//end of for loop(current)
 		//every time you read a charater add all the possible next moves to next array
 		//set current to next and empty the next array
 		//when figured out the next set of states, make then the current set
 		current, next = next, []*state{}
-	} //end of for(s)
-
-	//loop though the current array
-	for _, c := range current {
-		//if state looping though on current array = accept state of nfa => match=true
-		if c == ponfa.accept {
-			match = true
-			break
-		}
-	} //end of for loop(current)
-
-	return match
-}*/
-
-func pomatch(po string, s string) bool {
-
-	ismatch := false
-
-	ponfa := poregtonfa(po)
-
-	current := []*state{}
-	next := []*state{}
-
-	current = addState(current[:], ponfa.initial, ponfa.accept)
-
-	for _, r := range s {
-		for _, c := range current {
-			if c.symbol == r {
-				next = addState(next[:], c.edge1, ponfa.accept)
-			}
-		}
-		current, next = next, []*state{}
 	}
 
 	for _, c := range current {
 		if c == ponfa.accept {
+			//if state looping though on current array = accept state of nfa => match=true
 			ismatch = true
 			break
-		}
+		} //end if c == ponfa.accept
 	}
 
+	//return ismatch
 	return ismatch
 }
 
@@ -284,6 +252,6 @@ func main() {
 	fmt.Println("postFix:      ", "a.(b.b)+.c")
 	fmt.Println("nfa:         ", nfa)
 
-	fmt.Println(pomatch("ab.c*|", "ccc"))
+	fmt.Println(pomatch(intPost("a.b.c*"), "abc"))
 
 }
