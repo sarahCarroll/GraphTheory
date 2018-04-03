@@ -87,6 +87,7 @@ type nfa struct {
 
 // poregtonfa =post fix regular expression to non deterministic finite attomiton
 // must return a pointer to nfa struct
+//http://www.cs.may.ie/staff/jpower/Courses/Previous/parsing/node5.html
 func poregtonfa(pofix string) *nfa {
 	// thompsons algorithm works oon a stack ultimatily having a single fragment
 	// on the stack which finnished which represents and nfa matching the regular expression
