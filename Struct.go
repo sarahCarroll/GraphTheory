@@ -152,6 +152,31 @@ func poregtonfa(pofix string) *nfa {
 			//the old accept state points at its own initial state and the new accept state
 			nfaStack = append(nfaStack, &nfa{initial: &initial, accept: &accept})
 
+		case '+':
+			//Pop 1 fragment off nfastack * only works on one fragment
+			frag := nfaStack[len(nfaStack)-1]
+			nfaStack = nfaStack[:len(nfaStack)-1]
+
+			//create new states
+			accept := state{}
+
+			//initial is a new state where edge1 points at frag1. initial and edge2 points at new accept state
+			initial := state{edge1: frag.initial, edge2: &accept}
+
+			//Fragment edge1 pointS to the initial state
+			frag.accept.edge1 = &initial
+
+			//Push new fragment to nfastack
+			nfaStack = append(nfaStack, &nfa{initial: frag.initial, accept: &accept})
+
+		case '?':
+			frag := nfaStack[len(nfaStack)-1]
+
+			initial := state{edge1: frag.initial, edge2: frag.accept}
+
+			//Push new fragment to nfastack
+			nfaStack = append(nfaStack, &nfa{initial: &initial, accept: frag.accept})
+
 		//default for when r isnt one of the 3 special characters
 		default:
 			//all you need to do is push the non special character to the stack , dont need to pull anything from the stack
@@ -253,6 +278,16 @@ func main() {
 	fmt.Println("postFix:      ", "a.(b.b)+.c")
 	fmt.Println("nfa:         ", nfa)
 
-	fmt.Println(pomatch(intPost("a.b.c*"), "abc"))
+	fmt.Println("pomatch(intPost(a.b.c*), abc)")
+	fmt.Println(pomatch(intPost("a.b.c*"), "abc")) //return true
+
+	fmt.Println("pomatch(intPost(a|b), a)")
+	fmt.Println(pomatch(intPost("a|b"), "a")) //return true
+
+	fmt.Println("pomatch(intPost(a?b)), ab)")
+	fmt.Println(pomatch(intPost("a?b"), "ab"))
+
+	fmt.Println("pomatch(intPost(a+b), ab)")
+	fmt.Println(pomatch(intPost("a+b"), "ab"))
 
 }
