@@ -17,7 +17,7 @@ func intPost(infix string) string {
 	//map to keep track +of special characters
 	//if character is in specials do soemthing with it
 	//map to keep track of presedence
-	specials := map[rune]int{'*': 10, '.': 9, '|': 8}
+	specials := map[rune]int{'*': 10, '.': 9, '|': 8, '+': 7, '?': 6}
 	//poFix := ""
 	poFix, s := []rune{}, []rune{}
 
@@ -152,7 +152,7 @@ func poregtonfa(pofix string) *nfa {
 			//the old accept state points at its own initial state and the new accept state
 			nfaStack = append(nfaStack, &nfa{initial: &initial, accept: &accept})
 
-		/*case '+':
+		case '+':
 			//Pop 1 fragment off nfastack * only works on one fragment
 			frag := nfaStack[len(nfaStack)-1]
 			nfaStack = nfaStack[:len(nfaStack)-1]
@@ -176,7 +176,7 @@ func poregtonfa(pofix string) *nfa {
 
 			//Push new fragment to nfastack
 			nfaStack = append(nfaStack, &nfa{initial: &initial, accept: frag.accept})
-		*/
+
 		//default for when r isnt one of the 3 special characters
 		default:
 			//all you need to do is push the non special character to the stack , dont need to pull anything from the stack
@@ -191,6 +191,7 @@ func poregtonfa(pofix string) *nfa {
 
 	//return the last/ only thing left on the stack which is the actually nfa you want.
 	//***check that there is only one thing left on stack****
+	nfaStack[0] = nfaStack[len(nfaStack)-1]
 	return nfaStack[0]
 }
 
@@ -284,10 +285,10 @@ func main() {
 	fmt.Println("pomatch(intPost(a|b), a)")
 	fmt.Println(pomatch(intPost("a|b"), "a")) //return true
 
-	//fmt.Println("pomatch(intPost(a?b)), ab)")
-	//fmt.Println(pomatch(intPost("a?b"), "ab"))
+	fmt.Println("pomatch(intPost(a?.b)), ab)")
+	fmt.Println(pomatch(intPost("a?.b"), "ab"))
 
-	//fmt.Println("pomatch(intPost(a+b), ab)")
-	//fmt.Println(pomatch(intPost("a+b"), "ab"))
+	fmt.Println("pomatch(intPost(a+.b), ab)")
+	fmt.Println(pomatch(intPost("a+.b"), "ab"))
 
 }
