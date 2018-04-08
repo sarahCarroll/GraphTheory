@@ -285,8 +285,8 @@ func main() {
 	fmt.Println("pomatch(intPost(a|b), a)")
 	fmt.Println(pomatch(intPost("a|b"), "a")) //return true
 
-	fmt.Println("pomatch(intPost(a?.b)), ab)")
-	fmt.Println(pomatch(intPost("a?.b"), "ab"))
+	fmt.Println("pomatch(intPost(a?b)), b)")
+	fmt.Println(pomatch(intPost("a?b"), "b"))
 
 	fmt.Println("pomatch(intPost(a+.b), ab)")
 	fmt.Println(pomatch(intPost("a+.b"), "ab"))
