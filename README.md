@@ -49,7 +49,7 @@ locate the folder it is in in the command prompt.Then you must run the command
 ## BreakDown of Regex
 1."."
   
-  Concatinate - One Character Directly followed by another character eg. 0.1 means a 0 followed by a 1
+  Concatenate - One Character Directly followed by another character eg. 0.1 means a 0 followed by a 1
   
 2."|"
 
