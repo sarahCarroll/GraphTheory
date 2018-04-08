@@ -46,6 +46,27 @@ locate the folder it is in in the command prompt.Then you must run the command
 
 **go run Struct.go**
 
+## BreakDown of Regex
+1."."
+  
+  Concatinate - One Character Directly followed by another character eg. 0.1 means a 0 followed by a 1
+  
+2."|"
+
+  Or- one character or the other eg.  0|1 means a 0 or a 1
+ 
+3."*"
+
+  Kleene star - any number of the character prior to the * eg. 1∗ means any number of 1’s
+  
+4."+"
+
+  "+" means at lease one of.
+  
+5."?"
+ 
+  "?" means zero or one of.
+
 ## References
 https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 http://jacobappleton.io/2015/07/02/regex-ii-the-shunting-yard-algorithm/
